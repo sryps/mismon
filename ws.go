@@ -36,7 +36,7 @@ func main() {
 
 	input := make(chan string, 1)
 	go getInput(input)
-	URL := url.URL{Scheme: "ws", Host: SERVER, Path: PATH}
+	URL := url.URL{Scheme: "wss", Host: SERVER, Path: PATH}
 	c, _, err := websocket.DefaultDialer.Dial(URL.String(), nil)
 	if err != nil {
 		log.Println("Error:", err)
