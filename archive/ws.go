@@ -12,7 +12,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var SERVER = "10.10.11.102:26700"
+var SERVER = ""
 var PATH = "/websocket"
 var TIMESWAIT = 0
 var TIMESWAITMAX = 5
