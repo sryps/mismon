@@ -35,8 +35,8 @@ func queryState() error {
 		return err
 	}
 
-	// Prints the account balance
-	myAddress, err := sdk.AccAddressFromBech32("cosmos1......")
+	// Prints the account balance of random address
+	myAddress, err := sdk.AccAddressFromBech32("cosmos12adsjglpf38dyw7ecugecz8fhnrvwqg5tuw3cw")
 	if err != nil {
 		return err
 	}
