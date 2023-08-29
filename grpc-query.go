@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -13,22 +14,32 @@ import (
 	mint "github.com/cosmos/cosmos-sdk/x/mint/types"
 )
 
-func queryState(conn *grpc.ClientConn, module string) error {
+func queryClient(conn *grpc.ClientConn, module string) error {
+	s := strings.Split(module, " ")
 
-	switch m := module; m {
-	case "evidence":
-		queryEvidence(conn)
-	case "provisions":
-		queryAnnualProvisions(conn)
-	default:
-		fmt.Println("Unknown Module....Please try again.")
+	for i := 0; i < len(s); i++ {
+		fail := true
+		fmt.Println(s[i])
+		if s[i] == "evidence" {
+			queryEvidence(conn)
+			fail = false
+		}
+		if s[i] == "provisions" {
+			queryAnnualProvisions(conn)
+			fail = false
+		}
+		if fail {
+			fmt.Println("\n\n", s[i], "module query is not available")
+			fmt.Println("Available queries: evidence, provisions, ")
+			panic("unknown module used")
+		}
 	}
 
 	return nil
 }
 
 func queryEvidence(conn *grpc.ClientConn) {
-	// Query mint module for misbehaviour evidience
+	// Query evidence module for misbehaviour evidience
 	evidenceClient := evidence.NewQueryClient(conn)
 	evidenceRes, err := evidenceClient.AllEvidence(
 		context.Background(),
@@ -55,13 +66,13 @@ func queryAnnualProvisions(conn *grpc.ClientConn) {
 
 func main() {
 	arguments := os.Args
-	if len(arguments) != 3 {
+	if len(arguments) < 3 {
 		panic("Need server address and module!")
 	}
 	server := arguments[1]
-	module := arguments[2]
+	module := strings.Join(arguments[2:], " ")
 
-	fmt.Println("Connecting to:", server)
+	fmt.Println("Connecting to:", server, module)
 
 	conn, err := grpc.Dial(
 		server,
@@ -72,7 +83,7 @@ func main() {
 		panic(err)
 	}
 
-	if err := queryState(conn, module); err != nil {
+	if err := queryClient(conn, module); err != nil {
 		panic(err)
 	}
 
