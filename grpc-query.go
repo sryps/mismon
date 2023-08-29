@@ -19,7 +19,7 @@ func queryClient(conn *grpc.ClientConn, module string) error {
 
 	for i := 0; i < len(s); i++ {
 		fail := true
-		fmt.Println(s[i])
+		fmt.Println("\n\nRunning", s[i], "module query...")
 		if s[i] == "evidence" {
 			queryEvidence(conn)
 			fail = false
@@ -72,7 +72,7 @@ func main() {
 	server := arguments[1]
 	module := strings.Join(arguments[2:], " ")
 
-	fmt.Println("Connecting to:", server, module)
+	fmt.Println("Connecting to:", server)
 
 	conn, err := grpc.Dial(
 		server,
