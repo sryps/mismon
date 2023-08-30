@@ -2,6 +2,8 @@ module github.com/sryps/mismon
 
 go 1.19
 
+replace github.com/cosmos/cosmos-sdk/codec => github.com/cosmos/cosmos-sdk v0.47.4
+
 require (
 	github.com/cosmos/cosmos-sdk v0.47.4
 	github.com/gorilla/websocket v1.5.0

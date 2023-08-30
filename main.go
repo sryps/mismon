@@ -3,50 +3,48 @@ package main
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/sryps/mismon/handlers"
 	"github.com/sryps/mismon/queries"
 )
 
-func queryClient(conn *grpc.ClientConn, module string) error {
-	s := strings.Split(module, " ")
+func queryClient(conn *grpc.ClientConn, module string) (q string, err error) {
 
-	for i := 0; i < len(s); i++ {
-		fail := true
-		fmt.Println("\n\nRunning", s[i], "module query...")
-		if s[i] == "evidence" {
-			q := queries.QueryEvidence(conn)
-			fmt.Println(q)
-			fail = false
-		}
-		if s[i] == "provisions" {
-			q := queries.QueryAnnualProvisions(conn)
-			fmt.Println(q)
-			fail = false
-		}
-		if fail {
-			fmt.Println("\n\n", s[i], "module query is not available")
-			fmt.Println("Available queries: evidence, provisions, ")
-			panic("unknown module used")
-		}
+	switch module {
+	case "evidence":
+		data, err := queries.QueryAllEvidence(conn)
+		q := handlers.CheckEvidence(data)
+		return q, err
+
+	case "provisions":
+		data, err := queries.QueryAnnualProvisions(conn)
+		q := handlers.CheckProvisions(data)
+		return q, err
+
+	case "consensus":
+		q = queries.QueryConParams(conn).String()
+
+	default:
+		err = fmt.Errorf("invalid module: %s not found", module)
 	}
 
-	return nil
+	return
 }
 
 func main() {
 	arguments := os.Args
 	if len(arguments) < 3 {
-		panic("Need server address and module!")
+		fmt.Println("USEAGE: <binary> <server IP:PORT> <evidence | provisions | consensus>")
+		panic("Need server address and queries!")
 	}
 	server := arguments[1]
-	module := strings.Join(arguments[2:], " ")
+	modules := arguments[2:]
 
-	fmt.Println("Connecting to:", server)
+	fmt.Printf("Connecting to: %s\n\n", server)
 
 	conn, err := grpc.Dial(
 		server,
@@ -57,8 +55,12 @@ func main() {
 		panic(err)
 	}
 
-	if err := queryClient(conn, module); err != nil {
-		panic(err)
+	for _, module := range modules {
+		result, err := queryClient(conn, module)
+		if err != nil {
+			fmt.Fprint(os.Stderr, err.Error())
+		}
+		fmt.Println(result)
 	}
 
 	conn.Close()
