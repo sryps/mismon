@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -10,8 +9,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/cosmos/cosmos-sdk/codec"
-	evidence "github.com/cosmos/cosmos-sdk/x/evidence/types"
-	mint "github.com/cosmos/cosmos-sdk/x/mint/types"
+	"github.com/sryps/mismon/queries"
 )
 
 func queryClient(conn *grpc.ClientConn, module string) error {
@@ -21,11 +19,13 @@ func queryClient(conn *grpc.ClientConn, module string) error {
 		fail := true
 		fmt.Println("\n\nRunning", s[i], "module query...")
 		if s[i] == "evidence" {
-			queryEvidence(conn)
+			q := queries.QueryEvidence(conn)
+			fmt.Println(q)
 			fail = false
 		}
 		if s[i] == "provisions" {
-			queryAnnualProvisions(conn)
+			q := queries.QueryAnnualProvisions(conn)
+			fmt.Println(q)
 			fail = false
 		}
 		if fail {
@@ -36,32 +36,6 @@ func queryClient(conn *grpc.ClientConn, module string) error {
 	}
 
 	return nil
-}
-
-func queryEvidence(conn *grpc.ClientConn) {
-	// Query evidence module for misbehaviour evidience
-	evidenceClient := evidence.NewQueryClient(conn)
-	evidenceRes, err := evidenceClient.AllEvidence(
-		context.Background(),
-		&evidence.QueryAllEvidenceRequest{},
-	)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(evidenceRes)
-}
-
-func queryAnnualProvisions(conn *grpc.ClientConn) {
-	// Query mint module for annual provisions
-	mintClient := mint.NewQueryClient(conn)
-	mintRes, err := mintClient.AnnualProvisions(
-		context.Background(),
-		&mint.QueryAnnualProvisionsRequest{},
-	)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(mintRes)
 }
 
 func main() {
