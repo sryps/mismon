@@ -2,9 +2,10 @@ package queries
 
 import (
 	"context"
+	"fmt"
 	"time"
 
-	consensus "github.com/cosmos/cosmos-sdk/x/consensus/types"
+	bank "github.com/cosmos/cosmos-sdk/x/bank/types"
 	evidence "github.com/cosmos/cosmos-sdk/x/evidence/types"
 	mint "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"google.golang.org/grpc"
@@ -23,11 +24,15 @@ type AnnualProvisions struct {
 
 func QueryAllEvidence(conn *grpc.ClientConn) (evidenceRes []EvidenceData, err error) {
 	// Query evidence module for misbehaviour evidience
+
 	evidenceClient := evidence.NewQueryClient(conn)
 	resp, err := evidenceClient.AllEvidence(
 		context.Background(),
 		&evidence.QueryAllEvidenceRequest{},
 	)
+	if err != nil {
+		return nil, err
+	}
 
 	for _, item := range resp.Evidence {
 		result := evidence.Equivocation{}
@@ -50,6 +55,9 @@ func QueryAnnualProvisions(conn *grpc.ClientConn) (mintRes []AnnualProvisions, e
 		context.Background(),
 		&mint.QueryAnnualProvisionsRequest{},
 	)
+	if err != nil {
+		return nil, err
+	}
 
 	newMint := AnnualProvisions{
 		Provisions: resp.AnnualProvisions,
@@ -59,16 +67,16 @@ func QueryAnnualProvisions(conn *grpc.ClientConn) (mintRes []AnnualProvisions, e
 	return
 }
 
-func QueryConParams(conn *grpc.ClientConn) (consensusRes *consensus.QueryParamsResponse) {
+func QueryBank(conn *grpc.ClientConn) (consensusRes *bank.QueryDenomsMetadataResponse) {
 	// Query consensus module for params
-	consensusClient := consensus.NewQueryClient(conn)
-	consensusRes, err := consensusClient.Params(
+	bankClient := bank.NewQueryClient(conn)
+	consensusRes, err := bankClient.DenomsMetadata(
 		context.Background(),
-		&consensus.QueryParamsRequest{},
+		&bank.QueryDenomsMetadataRequest{},
 	)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
 
-	return consensusRes
+	return
 }

@@ -25,8 +25,9 @@ func queryClient(conn *grpc.ClientConn, module string) (q string, err error) {
 		q := handlers.CheckProvisions(data)
 		return q, err
 
-	case "consensus":
-		q = queries.QueryConParams(conn).String()
+	case "bank":
+		q = queries.QueryBank(conn).String()
+		return q, err
 
 	default:
 		err = fmt.Errorf("invalid module: %s not found", module)
