@@ -8,7 +8,7 @@ import (
 
 func CheckProvisions(data []queries.AnnualProvisions) (q string) {
 	for _, k := range data {
-		q += fmt.Sprintf("Annual_Provisions: %d\n", int(k.Provisions))
+		q += fmt.Sprintf("Annual_Provisions: %d\n", k.Provisions)
 	}
 	return
 }

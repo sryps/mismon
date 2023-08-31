@@ -18,7 +18,7 @@ type EvidenceData struct {
 }
 
 type AnnualProvisions struct {
-	Provisions int
+	Provisions any
 }
 
 func QueryAllEvidence(conn *grpc.ClientConn) (evidenceRes []EvidenceData, err error) {
@@ -52,7 +52,7 @@ func QueryAnnualProvisions(conn *grpc.ClientConn) (mintRes []AnnualProvisions, e
 	)
 
 	newMint := AnnualProvisions{
-		Provisions: int(resp.AnnualProvisions.RoundInt64()),
+		Provisions: resp.AnnualProvisions,
 	}
 	mintRes = append(mintRes, newMint)
 
